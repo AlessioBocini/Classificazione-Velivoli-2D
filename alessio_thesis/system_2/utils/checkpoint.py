@@ -6,6 +6,7 @@ from typing import Optional, Dict, Any, Tuple
 __all__ = ["save_ckpt", "load_ckpt"]
 
 def _atomic_save(obj: Dict[str, Any], path: str) -> None:
+    ## Questo si occupa di salvare in modo atomico, evitando file corrotti in caso di crash
     tmp = path + ".tmp"
     torch.save(obj, tmp)
     os.replace(tmp, path)
@@ -17,20 +18,15 @@ def save_ckpt(
     best_val_acc: float,
     num_classes: int,
     input_dim: int,
+
+    # Casi opzionali
     optimizer: Optional[torch.optim.Optimizer] = None,
     scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
     epoch: Optional[int] = None,
     hparams: Optional[Dict[str, Any]] = None,
     extra: Optional[Dict[str, Any]] = None,
 ) -> None:
-    """
-    Save a rich checkpoint with model/optim/scheduler + metadata.
-    Overwrites atomically.
 
-    Fields:
-      - model_state, optimizer_state, scheduler_state
-      - best_val_acc, num_classes, input_dim, epoch, hparams, extra
-    """
     payload: Dict[str, Any] = {
         "model_state": model.state_dict(),
         "best_val_acc": float(best_val_acc),
@@ -46,7 +42,8 @@ def save_ckpt(
     if hparams:
         payload["hparams"] = dict(hparams)
     if extra:
-        payload.update(extra)
+        # ? Ho scelto di usare la funzione update per includere i campi extra direttamente nella radice del checkpoint, invece che in un sotto-dizionario
+        payload.update(extra) 
 
     _atomic_save(payload, path)
 
@@ -62,33 +59,21 @@ def load_ckpt(
     scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
     strict: bool = True,
 ) -> Tuple[float, Optional[int], bool]:
-    """
-    Load a checkpoint into `model`.
-
-    Returns: (best_val_acc, epoch, loaded)
-      - best_val_acc: float (=-1.0 if unknown)
-      - epoch: int or None
-      - loaded: bool (True if anything was loaded)
-
-    Behavior:
-      - If `path` is a rich checkpoint: validates shapes (when metadata is present),
-        loads model_state, optionally optimizer/scheduler if `resume=True`.
-      - If `path` is a plain state_dict: loads directly into model; best_val_acc=-1.0, epoch=None.
-      - If `path` missing: returns (-1.0, None, False).
-    """
+    
     if not os.path.exists(path):
         return -1.0, None, False
 
     obj = torch.load(path, map_location=device)
 
-    # Case A: rich checkpoint dict
+    # Case A: caso tipico con dizionario completo
     if isinstance(obj, dict) and "model_state" in obj:
-        # shape checks if metadata present
+        # Controlla coerenza dei parametri attesi
         if expected_num_classes is not None and "num_classes" in obj:
             if int(obj["num_classes"]) != int(expected_num_classes):
                 raise ValueError(
                     f"[ckpt] num_classes mismatch: ckpt={obj['num_classes']} vs expected={expected_num_classes}"
                 )
+            
         if expected_input_dim is not None and "input_dim" in obj:
             if int(obj["input_dim"]) != int(expected_input_dim):
                 raise ValueError(
@@ -100,6 +85,7 @@ def load_ckpt(
         if resume:
             if optimizer is not None and "optimizer_state" in obj:
                 optimizer.load_state_dict(obj["optimizer_state"])
+
             if scheduler is not None and "scheduler_state" in obj:
                 scheduler.load_state_dict(obj["scheduler_state"])
 
@@ -109,12 +95,9 @@ def load_ckpt(
             epoch_loaded = epoch
         else:
             epoch_loaded = None
-        return best, epoch_loaded, True
 
-    # Case B: plain state_dict (nn.Module.state_dict())
-    if isinstance(obj, (dict, torch.nn.modules.module.OrderedDict)):
-        # Basic sanity check: try to load; if shapes mismatch, PyTorch will raise
-        model.load_state_dict(obj, strict=strict)
-        return -1.0, None, True
+        return best, epoch_loaded, True
+    
+    # ? Altri formati di checkpoint possono essere gestiti qui, tuttavia il caso più well-defined è quello sopra
 
     raise ValueError("[ckpt] Unrecognized checkpoint format.")
