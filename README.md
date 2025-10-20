@@ -1,10 +1,11 @@
 # Feature Extraction and Classification of 2D Point Clouds using PointNet
-
+```text
 Author: Alessio Bocini
-
+Supervisor: Prof. Giorgio Battistelli
+Tutor and Researcher: Matteo Tesori
 University of Florence – Department of Information Engineering (DINFO)
 Academic Year: 2025/2026
-
+```
 ## Brief Overview
 This thesis presents a two-stage pipeline for the representation and classification of 2D point cloud data.  
 The first stage (System 1) uses a pretrained **PointNet** model to extract compact, high-level **H-vectors** (global shape descriptors).  
