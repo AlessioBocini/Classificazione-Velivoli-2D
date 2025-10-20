@@ -4,7 +4,6 @@ Author: Alessio Bocini
 
 University of Florence – Department of Information Engineering (DINFO)
 Academic Year: 2025/2026
----
 
 ## Brief Overview
 This thesis presents a two-stage pipeline for the representation and classification of 2D point cloud data.  
