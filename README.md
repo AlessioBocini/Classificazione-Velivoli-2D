@@ -7,11 +7,9 @@ Academic Year: 2025/2026
 ---
 
 ## Brief Overview
-This thesis presents a **two-stage pipeline** for the **representation and classification of 2D/3D point cloud data**.  
-The first stage (**System 1**) uses a pretrained **PointNet** model to extract compact, high-level **H-vectors** (global shape descriptors).  
-The second stage (**System 2**) trains an **MLP classifier** on these H-vectors to recognize object categories.  
-
-This modular design separates **geometric feature learning** (via deep neural networks) from **semantic classification** (via supervised training on learned embeddings).
+This thesis presents a two-stage pipeline for the representation and classification of 2D point cloud data.  
+The first stage (System 1) uses a pretrained **PointNet** model to extract compact, high-level **H-vectors** (global shape descriptors).  
+The second stage (System 2) trains an **MLP classifier** on these H-vectors to recognize object categories.  
 
 ---
 
@@ -70,9 +68,10 @@ cd alessio_thesis/system_2
 python classifier_h.py
 ```
 ## Versions used
-
+```text
 python 3.13.5
 torch 2.7.1
 numpy 2.3.2
 scikit-learn 1.7.0
 tqdm 4.67.1
+```
