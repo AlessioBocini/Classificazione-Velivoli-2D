@@ -23,6 +23,6 @@ def run_epoch(loader, model, optimizer, criterion, device='cpu', train=True):
                 total += yb.numel()                                             # total number of samples
                 loss_sum += loss.item() * yb.numel()                            # accumulate loss
 
-        acc = correct / max(1,total)                                            # accuracy over the epoch
+        acc = correct / max(1,total)                                      
         avg_loss = loss_sum / max(1,total)                                      # average loss over the epoch
         return avg_loss, acc
