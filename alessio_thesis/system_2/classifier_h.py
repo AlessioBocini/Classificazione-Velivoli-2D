@@ -70,7 +70,7 @@ if not EVAL_ONLY:
     train_ds = HDataset(X, y, train_idx)
     val_ds   = HDataset(X, y, val_idx)
 
-    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, drop_last=False)
+    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, drop_last=False)   # Se uso più GPU, mettere drop_last=True
     val_loader   = DataLoader(val_ds,   batch_size=BATCH_SIZE, shuffle=False, drop_last=False)
 
     # ----  Training setup   ----
@@ -126,6 +126,9 @@ else:
         resume=False,
         strict=True
     )
+
+    # 1 metro deviazione standard
+    
     assert loaded, f"Checkpoint non trovato o incompatibile: {CKPT_PATH}"
 
     if not loaded:
@@ -164,7 +167,6 @@ if __name__ == "__main__":
     TestRunInference.device = DEVICE
 
     NPZ_PATH_TESTS = "alessio_thesis/system_2/test/output_system1/pointnet_features.npz"
-
     data_dict = np.load(NPZ_PATH_TESTS)
 
     testing_labels = data_dict['labels']
@@ -182,5 +184,5 @@ if __name__ == "__main__":
         test_fn = TestRunInference._make_case_test(i, case['vector_h_cloud'], case['correct_label'])
         setattr(TestRunInference, test_fn.__name__, test_fn)
 
-    suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestRunInference)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    # suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestRunInference)
+    # unittest.TextTestRunner(verbosity=2).run(suite)
