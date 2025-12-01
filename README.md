@@ -44,9 +44,22 @@ The second stage (System 2) trains an **MLP classifier** on these H-vectors to r
         ├── pointnet_cls.py             # Original PointNet architecture (classification)
         └── pointnet_utils.py           # Utility layers and transformation nets
 ```
-## Note
+## Note on the Project
 The PointNet/ directory is external to the thesis project (alessio_thesis/).
 It contains the reference implementation of PointNet, taken from the original paper: “PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation”, Stanford University.
+
+## Note on the I/O
+
+To run the `system_1` procedure (`[multi/extract]_h_vectors.py`), place at least one dataset inside the `system_1/input/datasets/` folder.
+`system_1` uses pretrained weights stored in `system_1/input/pointnet_weights.pth`, coming from the first execution.  
+You can regenerate and save new weights by setting `TO_LOAD_POINTNET_MODEL_WEIGHTS = False`, but this is usually unnecessary. The initial weights were randomly initialized; loading them only ensures reproducibility.
+After completion, `system_1` outputs `pointnet_features.npz` inside the `system_1/output/` folder.
+
+`System2` requires `system_1/output/pointnet_features.npz` to exist.  
+During training, System2 loads this file and produces `cls_best.pth` in the project root directory.
+For inference-only execution, both `cls_best.pth` and `system_1/output/pointnet_features.npz` must be present.  
+The system loads `cls_best.pth` and applies inference to the new `pointnet_features.npz`.
+
 
 ## System 1 – Feature Extraction
 
